@@ -105,6 +105,7 @@ static void perform_rebinding_with_section(struct rebindings_entry *rebindings,
                     if (cur->rebindings[j].replaced != NULL
                         &&indirect_symbol_bindings[i] != cur->rebindings[j].replacement) {
                         *(cur->rebindings[j].replaced) = indirect_symbol_bindings[i];//保存原始方法的调用地址，实际跳转的地址还是需要dyld_stub_binder的地址或者dyld_stub_binder链接后的地址。从这里看可以多次方法替换，替换顺序如果是A-B-C,那么如果都执行了之前的方法的话，调用顺序是C-B-A。
+                        //这里有个隐含的信息，__la_symbol_ptr中符号的顺序和位置和简介符号表中reserved1位置开始后的符号顺序是一致的
                     }
                     indirect_symbol_bindings[i] = cur->rebindings[j].replacement;//将自己的方法地址写入之前函数的调用地址达到方法调用替换的目的，外部调用通过旧的函数名调用时将会调用到新的函数，而调用之前的旧函数时，会首先同过stub_helper进行动态链接,再执行旧的函数，此时，rebindings中的replaced充当了_la_symble_ptr的作用，这也是replaced字段是二级指针的原因
                     goto symbol_loop;
